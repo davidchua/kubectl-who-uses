@@ -1,0 +1,35 @@
+#!/bin/bash
+# This plugin is supposed to tell the users which secrets, serviceaccount or
+# configmaps are being used by which pod/deployment
+
+PREFIX=$1
+
+if [[ $PREFIX == "sa" ]]; then
+  PREFIX="serviceaccount"
+elif [[ $PREFIX == "cm" ]]; then
+  PREFIX="configmap"
+fi
+
+DEPLOYMENTS=$(kubectl get deployments | tail -n+2 | cut -d ' ' -f 1)
+echo "DEPLOYMENTS"
+echo "==="
+for x in $DEPLOYMENTS; do
+  kubectl describe deployment $x | grep $2 -B 1 | grep -q -i $PREFIX
+  if [[ $? == 0 ]];
+  then
+    echo "$x uses $PREFIX"
+  fi
+done
+
+echo $'\n'
+
+PODS=$(kubectl get pods | tail -n+2 | cut -d ' ' -f 1)
+echo "PODS"
+echo "==="
+for x in $PODS; do
+  kubectl describe po $x | grep $2 -B 1 | grep -q -i $PREFIX
+  if [[ $? == 0 ]];
+  then
+    echo "$x uses $PREFIX"
+  fi
+done
