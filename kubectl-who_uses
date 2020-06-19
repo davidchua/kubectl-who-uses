@@ -10,11 +10,11 @@ elif [[ $PREFIX == "cm" ]]; then
   PREFIX="configmap"
 fi
 
-DEPLOYMENTS=$(kubectl get deployments | tail -n+2 | cut -d ' ' -f 1)
+DEPLOYMENTS=$(kubectl get deployments ${@:3} | tail -n+2 | cut -d ' ' -f 1)
 echo "DEPLOYMENTS"
 echo "==="
 for x in $DEPLOYMENTS; do
-  kubectl describe deployment $x | grep $2 -B 1 | grep -q -i $PREFIX
+  kubectl describe deployment $x ${@:3} | grep $2 -B 1 | grep -q -i $PREFIX
   if [[ $? == 0 ]];
   then
     echo "$x uses $PREFIX"
@@ -23,11 +23,11 @@ done
 
 echo $'\n'
 
-PODS=$(kubectl get pods | tail -n+2 | cut -d ' ' -f 1)
+PODS=$(kubectl get pods ${@:3} | tail -n+2 | cut -d ' ' -f 1)
 echo "PODS"
 echo "==="
 for x in $PODS; do
-  kubectl describe po $x | grep $2 -B 1 | grep -q -i $PREFIX
+  kubectl describe po $x ${@:3} | grep $2 -B 1 | grep -q -i $PREFIX
   if [[ $? == 0 ]];
   then
     echo "$x uses $PREFIX"
